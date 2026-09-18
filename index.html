@@ -21,24 +21,24 @@
         .cartao { background: var(--cartao); border-radius: 14px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.06); cursor: pointer; transition: transform 0.2s; }
         .cartao:active { transform: scale(0.97); }
         
-        /* ✅ FOTO COMPLETA SEM CORTAR */
+        /* ✅ Cartão: foto inteira sem cortar */
         .cartao-foto { 
             width: 100%; 
-            height: 180px; 
-            background: #F2F3F5; 
+            height: 160px; 
+            background: #FFFFFF; 
             display: flex; 
             align-items: center; 
             justify-content: center; 
-            overflow: hidden;
             cursor: pointer;
+            border-bottom: 1px solid #eee;
         }
         .cartao-foto img { 
-            width: 100%; 
-            height: 100%; 
-            object-fit: contain; /* Mostra a foto INTEIRA sem cortar ✅ */
-            background: #FFFFFF;
+            max-width: 100%; 
+            max-height: 100%; 
+            width: auto;
+            height: auto;
+            object-fit: contain; 
         }
-        .cartao-foto .sem-foto { color: #C9CDD4; font-size: 40px; }
         
         .cartao-corpo { padding: 12px; }
         .cartao-codigo { font-size: 13px; color: var(--secundario); font-family: monospace; font-weight: bold; }
@@ -49,7 +49,6 @@
         .vazio { text-align: center; padding: 60px 20px; color: var(--secundario); }
         .vazio .icone { font-size: 48px; margin-bottom: 12px; }
         
-        /* ✅ TELA DE DETALHES */
         .tela { display: none; }
         .tela.ativa { display: block; }
         .btn-voltar { 
@@ -58,24 +57,26 @@
         }
         .cabecalho { position: relative; }
         
+        /* ✅ Detalhes: foto inteira */
         .detalhes-foto { 
             width: 100%; 
-            min-height: 280px;
+            min-height: 200px;
             background: #FFFFFF; 
             display: flex; 
             align-items: center; 
             justify-content: center; 
             border-radius: 12px; 
-            margin-bottom: 18px;
+            margin-bottom: 10px;
             cursor: pointer;
             box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-            overflow: hidden;
+            padding: 15px;
         }
         .detalhes-foto img { 
             max-width: 100%; 
             max-height: 350px; 
+            width: auto;
+            height: auto;
             object-fit: contain;
-            padding: 10px;
         }
         
         .detalhes-bloco { 
@@ -96,46 +97,48 @@
         .etiqueta.A-RECUPERAR { background: #FFF7E8; color: #FF7D00; }
         .etiqueta.SUCATA { background: #FFECE8; color: #F53F3F; }
         
-        /* ✅ TELA DE IMAGEM AMPLIADA */
+        /* ✅ Tela de Foto Ampliada — TELA INTEIRA */
         .tela-imagem {
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.9);
+            background: #000000;
             display: none;
             align-items: center;
             justify-content: center;
-            z-index: 9999;
-            padding: 20px;
+            z-index: 99999;
+            padding: 10px;
         }
         .tela-imagem.ativa { display: flex; }
         .tela-imagem img {
             max-width: 100%;
-            max-height: 90vh;
+            max-height: 95vh;
+            width: auto;
+            height: auto;
             object-fit: contain;
-            border-radius: 8px;
         }
         .tela-imagem .fechar {
             position: absolute;
             top: 15px;
             right: 20px;
             color: white;
-            font-size: 30px;
+            font-size: 35px;
             cursor: pointer;
             font-weight: bold;
+            z-index: 100000;
         }
         .dica-clique {
             text-align: center;
-            font-size: 11px;
+            font-size: 12px;
             color: var(--secundario);
-            margin-top: 4px;
+            margin-bottom: 18px;
         }
     </style>
 </head>
 <body>
 
-<!-- ✅ Tela de Imagem Ampliada -->
+<!-- ✅ Tela de Foto Ampliada -->
 <div id="tela-ampliada" class="tela-imagem" onclick="fecharImagem()">
-    <span class="fechar">×</span>
+    <span class="fechar" onclick="event.stopPropagation(); fecharImagem()">×</span>
     <img id="img-ampliada" src="" alt="">
 </div>
 
@@ -161,10 +164,10 @@
 </div>
 
 <script>
-// ✅ Sua lista de materiais — adicione mais aqui
+// ✅ Lista de materiais
 const materiais = [
     { codigo: '760489', descricao: 'ALICATE CORTE FRONTAL DE 6 POL. ISOLADO', unidade: 'EA', familia: 'FERRAMENTAS', status: 'NOVO' },
-    // Adicione mais itens aqui no mesmo formato
+    // Adicione mais itens aqui:
     // { codigo: 'CODIGO', descricao: 'NOME', unidade: 'EA', familia: 'CATEGORIA', status: 'NOVO' },
 ];
 
@@ -208,8 +211,7 @@ function renderizarGrade() {
     grade.innerHTML = filtrados.map(m => `
         <div class="cartao" onclick="abrirDetalhe('${m.codigo}')">
             <div class="cartao-foto" onclick="event.stopPropagation(); ampliarFoto('fotos/${m.codigo}.jpg')">
-                <img src="fotos/${m.codigo}.jpg" alt="${m.descricao}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                <span class="sem-foto" style="display:none;">🖼️</span>
+                <img src="fotos/${m.codigo}.jpg" alt="${m.descricao}" onerror="this.outerHTML='<span style=\'color:#ccc;font-size:30px;\'>🖼️</span>'">
             </div>
             <div class="cartao-corpo">
                 <div class="cartao-codigo">#${m.codigo}</div>
@@ -227,10 +229,9 @@ function abrirDetalhe(codigo) {
     const conteudo = document.getElementById('conteudo-detalhes');
     conteudo.innerHTML = `
         <div class="detalhes-foto" onclick="ampliarFoto('fotos/${item.codigo}.jpg')">
-            <img src="fotos/${item.codigo}.jpg" alt="${item.descricao}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-            <span style="font-size:60px; color:#C9CDD4; display:none;">🖼️</span>
+            <img src="fotos/${item.codigo}.jpg" alt="${item.descricao}" onerror="this.outerHTML='<span style=\'color:#ccc;font-size:40px;\'>🖼️</span>'">
         </div>
-        <p class="dica-clique">👆 Toque na imagem para ampliar</p>
+        <p class="dica-clique">👆 Toque na foto para ver em tela cheia</p>
         
         <div class="detalhes-bloco"><h3>Descrição</h3><p style="font-size:18px; font-weight:bold;">${item.descricao}</p></div>
         <div class="detalhes-bloco"><h3>Código</h3><p style="font-family:monospace; font-size:20px;">${item.codigo}</p></div>
@@ -247,10 +248,13 @@ function abrirCatalogo() {
     document.getElementById('tela-catalogo').classList.add('ativa');
 }
 
-// ✅ Função para ampliar imagem
+// ✅ Ampliar foto — TELA CHEIA
 function ampliarFoto(caminho) {
-    document.getElementById('img-ampliada').src = caminho;
-    document.getElementById('tela-ampliada').classList.add('ativa');
+    const img = document.getElementById('img-ampliada');
+    img.src = caminho;
+    img.onload = function() {
+        document.getElementById('tela-ampliada').classList.add('ativa');
+    };
 }
 
 function fecharImagem() {
