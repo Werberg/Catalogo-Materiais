@@ -1,214 +1,47 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Catálogo de Materiais</title>
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#d32f2f">
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔧</text></svg>">
-    
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; }
-        body { background: #f5f5f5; min-height: 100vh; }
-        header { background: #d32f2f; color: white; padding: 1.2rem; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
-        .busca-area { padding: 1.5rem; background: white; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 6px rgba(0,0,0,0.08); }
-        .input-codigo { width: 100%; padding: 1rem 1.2rem; font-size: 1.15rem; border: 2px solid #ddd; border-radius: 12px; text-align: center; letter-spacing: 2px; }
-        .input-codigo:focus { outline: none; border-color: #d32f2f; box-shadow: 0 0 0 3px rgba(211,47,47,0.15); }
-        .btn-buscar { width: 100%; margin-top: 0.8rem; padding: 1rem; background: #d32f2f; color: white; border: none; border-radius: 12px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: background 0.2s; }
-        .btn-buscar:active { background: #b71c1c; }
-        .resultado { padding: 1.5rem; display: none; }
-        .resultado.visivel { display: block; animation: aparecer 0.3s ease; }
-        @keyframes aparecer { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .card-produto { background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-        .foto { width: 100%; height: 280px; background: #fafafa; display: flex; align-items: center; justify-content: center; overflow: hidden; }
-        .foto img { max-width: 100%; max-height: 100%; object-fit: contain; }
-        .sem-foto { font-size: 4rem; opacity: 0.3; }
-        .dados { padding: 1.5rem; }
-        .codigo-badge { display: inline-block; background: #fef2f2; color: #d32f2f; padding: 0.5rem 1rem; border-radius: 20px; font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem; font-family: monospace; }
-        .linha { margin: 0.8rem 0; padding-bottom: 0.8rem; border-bottom: 1px solid #f0f0f0; }
-        .rotulo { font-size: 0.85rem; color: #888; text-transform: uppercase; letter-spacing: 0.5px; }
-        .valor { font-size: 1rem; color: #222; font-weight: 500; margin-top: 0.2rem; }
-        .erro { text-align: center; padding: 3rem 1.5rem; color: #666; display: none; }
-        .erro.visivel { display: block; }
-        .btn-instalar { position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%); background: #d32f2f; color: white; border: none; padding: 0.9rem 2rem; border-radius: 12px; font-size: 1rem; cursor: pointer; box-shadow: 0 4px 12px rgba(211,47,47,0.3); display: none; z-index: 200; }
-        .lista-todos { margin-top: 2rem; padding: 0 1.5rem 3rem; }
-        .lista-todos h3 { margin-bottom: 1rem; color: #444; }
-        .item-lista { background: white; padding: 1rem; border-radius: 10px; margin-bottom: 0.6rem; cursor: pointer; border-left: 4px solid #d32f2f; }
-        .item-lista:hover { background: #fef2f2; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Catálogo de Materiais</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0d47a1">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
+    body { background: #f5f7fa; padding: 20px; }
+    header { background: #0d47a1; color: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
+    .search-box { width: 100%; padding: 12px; font-size: 16px; border: 2px solid #ddd; border-radius: 6px; margin-bottom: 20px; }
+    .filters { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; }
+    select { padding: 10px; border-radius: 6px; border: 1px solid #ccc; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+    .card { background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); overflow: hidden; transition: transform 0.2s; }
+    .card:hover { transform: translateY(-3px); }
+    .card img { width: 100%; height: 200px; object-fit: cover; background: #eee; }
+    .card-body { padding: 15px; }
+    .cod { font-weight: bold; color: #0d47a1; font-size: 1.1em; }
+    .desc { margin: 8px 0; color: #333; }
+    .fam { display: inline-block; background: #e3f2fd; color: #0d47a1; padding: 4px 10px; border-radius: 12px; font-size: 0.85em; }
+    .med { margin-top: 8px; color: #666; font-size: 0.9em; }
+    .no-results { text-align: center; color: #666; padding: 40px; }
+    .loading { text-align: center; padding: 30px; font-size: 1.1em; color: #0d47a1; }
+  </style>
 </head>
 <body>
 
 <header>
-    <h1>🔧 Catálogo de Materiais</h1>
-    <p style="opacity: 0.9; margin-top: 0.3rem;">Busca por Código</p>
+  <h1>📦 Catálogo de Materiais</h1>
+  <p>Consulta rápida de materiais e equipamentos</p>
 </header>
 
-<div class="busca-area">
-    <input type="text" id="campoCodigo" class="input-codigo" placeholder="Digite o código ex: 760302" maxlength="10">
-    <button class="btn-buscar" id="btnBuscar">🔍 Buscar Material</button>
+<input type="search" id="searchInput" class="search-box" placeholder="🔍 Buscar por código, descrição ou família...">
+
+<div class="filters">
+  <select id="familyFilter">
+    <option value="">Todas as Famílias</option>
+  </select>
 </div>
 
-<div class="erro" id="caixaErro">
-    <div style="font-size: 3rem; margin-bottom: 1rem;">❌</div>
-    <h3>Material não encontrado</h3>
-    <p style="margin-top: 0.5rem;">Verifique o código e tente novamente.</p>
-</div>
-
-<div class="resultado" id="caixaResultado">
-    <div class="card-produto">
-        <div class="foto" id="blocoFoto">
-            <!-- Foto carrega aqui -->
-        </div>
-        <div class="dados">
-            <span class="codigo-badge" id="mostrarCodigo"></span>
-            <div class="linha">
-                <div class="rotulo">Material</div>
-                <div class="valor" id="mostrarNome"></div>
-            </div>
-            <div class="linha">
-                <div class="rotulo">Categoria</div>
-                <div class="valor" id="mostrarCategoria"></div>
-            </div>
-            <div class="linha">
-                <div class="rotulo">Marca</div>
-                <div class="valor" id="mostrarMarca"></div>
-            </div>
-            <div class="linha">
-                <div class="rotulo">Linha</div>
-                <div class="valor" id="mostrarLinha"></div>
-            </div>
-            <div class="linha" style="border-bottom: none;">
-                <div class="rotulo">Tipo / Descrição</div>
-                <div class="valor" id="mostrarTipo"></div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="lista-todos">
-    <h3>📋 Materiais Cadastrados</h3>
-    <div id="listaTodos"></div>
-</div>
-
-<button class="btn-instalar" id="btnInstalar">⬇️ Instalar App</button>
-
-<script>
-// ==============================================
-// 🔧 SEU BANCO DE DADOS — EDITE AQUI OS MATERIAIS
-// Para adicionar foto: coloque o link da imagem no campo "imagem"
-// ==============================================
-const bancoMateriais = [
-    {
-        codigo: "760302",
-        nome: "Ferramenta de corte de cabos",
-        categoria: "Ferramentas elétricas",
-        marca: "Milwaukee",
-        linha: "M12",
-        tipo: "Ferramenta de corte de cabos",
-        imagem: "https://i.imgur.com/8Z9XWgL.jpg" // ← Troque pela foto real
-    }
-    // ← ADICIONE MAIS AQUI seguindo o mesmo formato:
-    // ,{
-    //     codigo: "123456",
-    //     nome: "Nome do produto",
-    //     categoria: "Categoria",
-    //     marca: "Marca",
-    //     linha: "Linha/Modelo",
-    //     tipo: "Descrição completa",
-    //     imagem: "link_da_foto.jpg"
-    // }
-];
-
-// Elementos
-const campoCodigo = document.getElementById('campoCodigo');
-const btnBuscar = document.getElementById('btnBuscar');
-const caixaResultado = document.getElementById('caixaResultado');
-const caixaErro = document.getElementById('caixaErro');
-const listaTodos = document.getElementById('listaTodos');
-
-// Renderizar lista de todos os materiais
-function carregarLista() {
-    listaTodos.innerHTML = bancoMateriais.map(m => `
-        <div class="item-lista" data-cod="${m.codigo}">
-            <strong>${m.codigo}</strong> — ${m.nome}<br>
-            <small style="color:#777">${m.marca} · ${m.linha}</small>
-        </div>
-    `).join('');
-    
-    // Clicar na lista preenche e busca
-    document.querySelectorAll('.item-lista').forEach(item => {
-        item.onclick = () => {
-            campoCodigo.value = item.dataset.cod;
-            buscar();
-            window.scrollTo({top: 0, behavior: 'smooth'});
-        };
-    });
-}
-
-function buscar() {
-    const cod = campoCodigo.value.trim();
-    caixaResultado.classList.remove('visivel');
-    caixaErro.classList.remove('visivel');
-    
-    if (!cod) return;
-    
-    const material = bancoMateriais.find(m => m.codigo === cod);
-    
-    if (!material) {
-        caixaErro.classList.add('visivel');
-        return;
-    }
-    
-    // Preencher dados
-    document.getElementById('mostrarCodigo').textContent = material.codigo;
-    document.getElementById('mostrarNome').textContent = material.nome;
-    document.getElementById('mostrarCategoria').textContent = material.categoria;
-    document.getElementById('mostrarMarca').textContent = material.marca;
-    document.getElementById('mostrarLinha').textContent = material.linha;
-    document.getElementById('mostrarTipo').textContent = material.tipo;
-    
-    // Foto
-    const blocoFoto = document.getElementById('blocoFoto');
-    if (material.imagem) {
-        blocoFoto.innerHTML = <img src="${material.imagem}" alt="${material.nome}" onerror="this.parentElement.innerHTML='<span class=sem-foto>📷</span>'">;
-    } else {
-        blocoFoto.innerHTML = <span class="sem-foto">📷</span>;
-    }
-    
-    caixaResultado.classList.add('visivel');
-}
-
-btnBuscar.onclick = buscar;
-campoCodigo.onkeydown = e => e.key === 'Enter' && buscar();
-
-// PWA — Instalação
-let promptEvento;
-const btnInstalar = document.getElementById('btnInstalar');
-window.addEventListener('beforeinstallprompt', e => {
-    e.preventDefault();
-    promptEvento = e;
-    btnInstalar.style.display = 'block';
-});
-btnInstalar.onclick = async () => {
-    if (!promptEvento) return;
-    promptEvento.prompt();
-    const {outcome} = await promptEvento.userChoice;
-    if (outcome === 'accepted') btnInstalar.style.display = 'none';
-    promptEvento = null;
-};
-
-// Service Worker
-if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-        navigator.serviceWorker.register('sw.js')
-        .then(() => console.log('✅ SW registrado!'));
-    });
-}
-
-// Iniciar
-carregarLista();
+<div id="loading" class="loading">Carregando catálogo...</div>
 </script>
 </body>
 </html>
