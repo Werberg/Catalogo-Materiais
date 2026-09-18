@@ -1,171 +1,151 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Catálogo de Materiais</title>
-  <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#0d47a1">
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
-    body { background: #f5f7fa; padding: 20px; }
-    header { background: #0d47a1; color: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
-    .search-box { width: 100%; padding: 12px; font-size: 16px; border: 2px solid #ddd; border-radius: 6px; margin-bottom: 20px; }
-    .filters { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; }
-    select { padding: 10px; border-radius: 6px; border: 1px solid #ccc; }
-    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
-    .card { background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); overflow: hidden; transition: transform 0.2s; }
-    .card:hover { transform: translateY(-3px); }
-    .card img { width: 100%; height: 200px; object-fit: cover; background: #eee; }
-    .card-body { padding: 15px; }
-    .cod { font-weight: bold; color: #0d47a1; font-size: 1.1em; }
-    .desc { margin: 8px 0; color: #333; }
-    .fam { display: inline-block; background: #e3f2fd; color: #0d47a1; padding: 4px 10px; border-radius: 12px; font-size: 0.85em; }
-    .med { margin-top: 8px; color: #666; font-size: 0.9em; }
-    .no-results { text-align: center; color: #666; padding: 40px; }
-    .loading { text-align: center; padding: 30px; font-size: 1.1em; color: #0d47a1; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catálogo de Materiais</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
+        body { background: #f0f4f8; padding: 20px; max-width: 900px; margin: 0 auto; }
+        .cabecalho { background: #0052cc; color: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
+        .cabecalho h1 { font-size: 28px; display: flex; align-items: center; gap: 10px; }
+        .cabecalho p { opacity: 0.9; margin-top: 5px; }
+        .campo-busca { width: 100%; padding: 14px; font-size: 18px; border: 2px solid #ddd; border-radius: 6px; margin-bottom: 15px; }
+        .selecao { width: 100%; padding: 12px; font-size: 16px; border: 2px solid #ddd; border-radius: 6px; margin-bottom: 20px; }
+        .cartao { background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); display: flex; flex-direction: column; }
+        .area-imagem { height: 300px; background: #e9ecef; display: flex; align-items: center; justify-content: center; color: #666; font-size: 16px; }
+        .area-imagem img { max-width: 100%; max-height: 100%; object-fit: contain; }
+        .conteudo { padding: 20px; }
+        .codigo { font-size: 22px; font-weight: bold; color: #0052cc; margin-bottom: 10px; }
+        .descricao { font-size: 16px; color: #333; margin-bottom: 15px; line-height: 1.5; }
+        .etiqueta { display: inline-block; background: #e6f0ff; color: #0052cc; padding: 6px 12px; border-radius: 20px; font-size: 14px; margin-bottom: 10px; }
+        .unidade { font-size: 15px; color: #555; margin-top: 8px; }
+        .aviso { color: #e67700; margin-top: 10px; font-style: italic; }
+        .nenhum { text-align: center; padding: 40px; color: #666; font-size: 18px; }
+    </style>
 </head>
 <body>
 
-<header>
-  <h1>📦 Catálogo de Materiais</h1>
-  <p>Consulta rápida de materiais e equipamentos</p>
-</header>
+    <div class="cabecalho">
+        <h1>📦 Catálogo de Materiais</h1>
+        <p>Consulta rápida de materiais e equipamentos</p>
+    </div>
 
-<input type="search" id="searchInput" class="search-box" placeholder="🔍 Buscar por código, descrição ou família...">
+    <input type="text" id="busca" class="campo-busca" placeholder="Digite o código do material..." oninput="buscar()">
+    <select id="filtroFamilia" class="selecao" onchange="buscar()">
+        <option value="">Todas as Famílias</option>
+    </select>
 
-<div class="filters">
-  <select id="familyFilter">
-    <option value="">Todas as Famílias</option>
-  </select>
-</div>
-
-<div id="loading" class="loading">Carregando catálogo...</div>
-<div id="results" class="grid" style="display: none;"></div>
-<div id="noResults" class="no-results" style="display: none;">Nenhum material encontrado.</div>
+    <div id="resultado"></div>
 
 <script>
-let allItems = [];
+let dados = [];
+const extensoes = ['.jpg', '.jpeg', '.png', '.JPG', '.JPEG', '.PNG'];
 
-// Carrega o CSV
-async function loadCSV() {
-  try {
-    // O nome do arquivo CSV deve ser exatamente 'dados.csv'
-    const res = await fetch('dados.csv'); 
-    const text = await res.text();
-    parseCSV(text);
-  } catch (err) {
-    console.error("Erro ao carregar dados.csv:", err);
-    document.getElementById('loading').innerHTML = 'Erro ao carregar dados. Verifique se o arquivo "dados.csv" está na mesma pasta e se o conteúdo está correto.';
-  }
-}
+async function carregarCSV() {
+    try {
+        const res = await fetch('dados.csv');
+        const texto = await res.text();
+        const linhas = texto.split('\n').filter(l => l.trim());
+        const cab = linhas[0].split(';').map(c => c.trim());
+        
+        dados = linhas.slice(1).map(linha => {
+            const val = linha.split(';').map(v => v.trim());
+            return {
+                codigo: val[0] || '',
+                descricao: val[1] || '',
+                unidade: val[2] || '',
+                familia: val[3] || '',
+                foto: val[4] || ''
+            };
+        }).filter(d => d.codigo);
 
-function parseCSV(text) {
-  const lines = text.trim().split('\n');
-  const sep = ';'; // Separador do seu CSV
-  const headers = lines[0].split(sep).map(h => h.trim());
-  
-  allItems = lines.slice(1).map(line => {
-    const vals = line.split(sep);
-    return {
-      codigo: vals[0]?.trim() || '',
-      descricao: vals[1]?.trim() || '',
-      unidade: vals[2]?.trim() || '',
-      familia: vals[3]?.trim() || '',
-      foto: vals[4]?.trim() || '' // Campo da foto
-    };
-  }).filter(item => item.codigo); // Filtra linhas que não têm código
-
-  populateFamilies();
-  renderResults();
-  document.getElementById('loading').style.display = 'none';
-  document.getElementById('results').style.display = '';
-}
-
-function populateFamilies() {
-  const families = [...new Set(allItems.map(i => i.familia).filter(f => f))].sort();
-  const select = document.getElementById('familyFilter');
-  families.forEach(fam => {
-    const opt = document.createElement('option');
-    opt.value = fam;
-    opt.textContent = fam;
-    select.appendChild(opt);
-  });
-}
-
-function renderResults() {
-  const search = document.getElementById('searchInput').value.toLowerCase();
-  const family = document.getElementById('familyFilter').value;
-
-  const filtered = allItems.filter(item => {
-    const matchSearch = !search || 
-      item.codigo.toLowerCase().includes(search) ||
-      item.descricao.toLowerCase().includes(search) ||
-      item.familia.toLowerCase().includes(search);
-    const matchFamily = !family || item.familia === family;
-    return matchSearch && matchFamily;
-  });
-
-  const container = document.getElementById('results');
-  const noResults = document.getElementById('noResults');
-  
-  if (filtered.length === 0) {
-    container.style.display = 'none';
-    noResults.style.display = 'block';
-    return;
-  }
-
-  noResults.style.display = 'none';
-  container.style.display = 'grid';
-  container.innerHTML = filtered.map(item => `
-    <div class="card">
-      <img src="${getImagePath(item.foto, item.codigo)}" alt="${item.codigo}" onerror="this.onerror=null; this.src='https://via.placeholder.com/400x200/eee/666?text=Img+${item.codigo}'">
-      <div class="card-body">
-        <div class="cod">${item.codigo}</div>
-        <p class="desc">${item.descricao}</p>
-        <span class="fam">${item.familia || 'Sem categoria'}</span>
-        <p class="med">Unidade: ${item.unidade || '—'}</p>
-      </div>
-    </div>
-  `).join('');
-}
-
-// Tenta encontrar a imagem. Primeiro usa o nome do campo 'foto', depois tenta com o código.
-function getImagePath(fotoField, codigo) {
-  if (fotoField && fotoField.trim() !== '') {
-    // Verifica se o nome do arquivo já contém uma extensão comum
-    const exts = ['.jpg', '.jpeg', '.png'];
-    const hasExt = exts.some(ext => fotoField.toLowerCase().endsWith(ext));
-    if (hasExt) {
-      return fotoField; // Usa o nome exato se tiver extensão
-    } else {
-      // Tenta adicionar extensões comuns se não tiver
-      for (const ext of exts) {
-        // Retorna a primeira tentativa válida (pode ser melhorado para verificar existência)
-        return fotoField + ext; 
-      }
+        // Preencher filtro de famílias
+        const familias = [...new Set(dados.map(d => d.familia).filter(f => f))].sort();
+        const sel = document.getElementById('filtroFamilia');
+        familias.forEach(f => {
+            const opt = document.createElement('option');
+            opt.value = f;
+            opt.textContent = f;
+            sel.appendChild(opt);
+        });
+    } catch (e) {
+        console.error('Erro ao carregar dados:', e);
+        document.getElementById('resultado').innerHTML = '<p class="nenhum">❌ Não foi possível carregar o dados.csv — verifique se o arquivo está na mesma pasta.</p>';
     }
-  }
-  // Fallback: tenta usar o código do item como nome do arquivo de imagem
-  return codigo + '.jpg'; // Assume .jpg como padrão se nada for encontrado
 }
 
-// Eventos para busca e filtro
-document.getElementById('searchInput').addEventListener('input', renderResults);
-document.getElementById('familyFilter').addEventListener('change', renderResults);
+async function testarImagem(codigo, nomeFoto) {
+    // Se tem extensão fixa, testa ela
+    if (nomeFoto.includes('.')) {
+        const src = 'imagens/' + nomeFoto;
+        try {
+            const res = await fetch(src, { method: 'HEAD' });
+            if (res.ok) return src;
+        } catch {}
+        return null;
+    }
 
-// Configuração do Service Worker para PWA (opcional)
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('sw.js').catch(err => {
-      console.error('Erro ao registrar Service Worker:', err);
+    // Sem extensão → tenta todas
+    for (const ext of extensoes) {
+        const src = 'imagens/' + codigo + ext;
+        try {
+            const res = await fetch(src, { method: 'HEAD' });
+            if (res.ok) return src;
+        } catch {}
+    }
+    return null;
+}
+
+async function buscar() {
+    const termo = document.getElementById('busca').value.trim();
+    const familia = document.getElementById('filtroFamilia').value;
+    const resDiv = document.getElementById('resultado');
+
+    let filtro = dados.filter(d => {
+        const matchCod = !termo || d.codigo.includes(termo);
+        const matchFam = !familia || d.familia === familia;
+        return matchCod && matchFam;
     });
-  });
+
+    if (!termo && !familia) {
+        resDiv.innerHTML = '<p class="nenhum">Digite um código ou selecione uma família para buscar</p>';
+        return;
+    }
+
+    if (filtro.length === 0) {
+        resDiv.innerHTML = '<p class="nenhum">Nenhum material encontrado com estes filtros</p>';
+        return;
+    }
+
+    // Exibe o primeiro resultado mais relevante
+    const item = filtro[0];
+    let html = `
+        <div class="cartao">
+            <div class="area-imagem" id="areaImg">
+                <span>🔍 Buscando imagem...</span>
+            </div>
+            <div class="conteudo">
+                <div class="codigo">${item.codigo}</div>
+                <div class="descricao">${item.descricao}</div>
+                <span class="etiqueta">${item.familia}</span>
+                <div class="unidade">Unidade: ${item.unidade}</div>
+            </div>
+        </div>
+    `;
+    resDiv.innerHTML = html;
+
+    // Carrega a imagem
+    const srcImg = await testarImagem(item.codigo, item.foto);
+    const areaImg = document.getElementById('areaImg');
+    if (srcImg) {
+        areaImg.innerHTML = `<img src="${srcImg}" alt="Imagem ${item.codigo}" onerror="this.parentElement.innerHTML='<span class=\\'aviso\\'>📸 Arquivo não encontrado</span>'">`;
+    } else {
+        areaImg.innerHTML = `<span class="aviso">📸 Foto não disponível — verifique se ${item.codigo}.jpg está na pasta /imagens/</span>`;
+    }
 }
 
-// Carrega os dados do CSV ao iniciar
-loadCSV();
+carregarCSV();
 </script>
 </body>
 </html>
