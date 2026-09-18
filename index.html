@@ -20,35 +20,124 @@
         .grade { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
         .cartao { background: var(--cartao); border-radius: 14px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.06); cursor: pointer; transition: transform 0.2s; }
         .cartao:active { transform: scale(0.97); }
-        .cartao-foto { width: 100%; height: 140px; background: #F2F3F5; display: flex; align-items: center; justify-content: center; overflow: hidden; }
-        .cartao-foto img { width: 100%; height: 100%; object-fit: cover; }
-        .cartao-foto .sem-foto { color: #C9CDD4; font-size: 40px; }
-        .cartao-corpo { padding: 10px; }
-        .cartao-codigo { font-size: 12px; color: var(--secundario); font-family: monospace; }
-        .cartao-nome { font-size: 14px; font-weight: 600; color: var(--texto); margin: 4px 0; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-        .cartao-familia { font-size: 11px; color: var(--primaria); background: rgba(22,93,255,0.08); padding: 2px 8px; border-radius: 10px; display: inline-block; margin-top: 4px; }
         
+        /* ✅ FOTO COMPLETA SEM CORTAR */
+        .cartao-foto { 
+            width: 100%; 
+            height: 180px; 
+            background: #F2F3F5; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            overflow: hidden;
+            cursor: pointer;
+        }
+        .cartao-foto img { 
+            width: 100%; 
+            height: 100%; 
+            object-fit: contain; /* Mostra a foto INTEIRA sem cortar ✅ */
+            background: #FFFFFF;
+        }
+        .cartao-foto .sem-foto { color: #C9CDD4; font-size: 40px; }
+        
+        .cartao-corpo { padding: 12px; }
+        .cartao-codigo { font-size: 13px; color: var(--secundario); font-family: monospace; font-weight: bold; }
+        .cartao-nome { font-size: 14px; font-weight: 600; color: var(--texto); margin: 6px 0; line-height: 1.4; }
+        .cartao-familia { font-size: 11px; color: var(--primaria); background: rgba(22,93,255,0.08); padding: 3px 10px; border-radius: 12px; display: inline-block; margin-top: 4px; }
+        .cartao-unidade { font-size: 12px; color: var(--secundario); margin-top: 6px; }
+        
+        .vazio { text-align: center; padding: 60px 20px; color: var(--secundario); }
+        .vazio .icone { font-size: 48px; margin-bottom: 12px; }
+        
+        /* ✅ TELA DE DETALHES */
         .tela { display: none; }
         .tela.ativa { display: block; }
-        .btn-voltar { background: none; border: none; color: white; font-size: 16px; cursor: pointer; position: absolute; left: 16px; top: 50%; transform: translateY(-50%); }
+        .btn-voltar { 
+            background: none; border: none; color: white; font-size: 16px; cursor: pointer; 
+            position: absolute; left: 16px; top: 50%; transform: translateY(-50%); 
+        }
         .cabecalho { position: relative; }
         
-        .detalhes-foto { width: 100%; height: 280px; background: #F2F3F5; display: flex; align-items: center; justify-content: center; overflow: hidden; border-radius: 12px; margin-bottom: 18px; }
-        .detalhes-foto img { max-width: 100%; max-height: 100%; object-fit: contain; }
-        .detalhes-bloco { background: white; border-radius: 12px; padding: 16px; margin-bottom: 12px; box-shadow: 0 1px 4px rgba(0,0,0,0.04); }
-        .detalhes-bloco h3 { font-size: 13px; color: var(--secundario); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .detalhes-foto { 
+            width: 100%; 
+            min-height: 280px;
+            background: #FFFFFF; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            border-radius: 12px; 
+            margin-bottom: 18px;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+            overflow: hidden;
+        }
+        .detalhes-foto img { 
+            max-width: 100%; 
+            max-height: 350px; 
+            object-fit: contain;
+            padding: 10px;
+        }
+        
+        .detalhes-bloco { 
+            background: white; border-radius: 12px; padding: 16px; margin-bottom: 12px; 
+            box-shadow: 0 1px 4px rgba(0,0,0,0.04); 
+        }
+        .detalhes-bloco h3 { 
+            font-size: 13px; color: var(--secundario); margin-bottom: 6px; 
+            text-transform: uppercase; letter-spacing: 0.5px; 
+        }
         .detalhes-bloco p { font-size: 16px; color: var(--texto); }
-        .etiqueta { display: inline-block; padding: 6px 14px; border-radius: 20px; font-weight: bold; font-size: 14px; margin-top: 4px; }
+        .etiqueta { 
+            display: inline-block; padding: 6px 14px; border-radius: 20px; 
+            font-weight: bold; font-size: 14px; margin-top: 4px; 
+        }
         .etiqueta.NOVO { background: #E8FFEA; color: #00B42A; }
         .etiqueta.RECUPERADO { background: #E8F3FF; color: #165DFF; }
         .etiqueta.A-RECUPERAR { background: #FFF7E8; color: #FF7D00; }
         .etiqueta.SUCATA { background: #FFECE8; color: #F53F3F; }
         
-        .vazio { text-align: center; padding: 60px 20px; color: var(--secundario); }
-        .vazio .icone { font-size: 48px; margin-bottom: 12px; }
+        /* ✅ TELA DE IMAGEM AMPLIADA */
+        .tela-imagem {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.9);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            padding: 20px;
+        }
+        .tela-imagem.ativa { display: flex; }
+        .tela-imagem img {
+            max-width: 100%;
+            max-height: 90vh;
+            object-fit: contain;
+            border-radius: 8px;
+        }
+        .tela-imagem .fechar {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            color: white;
+            font-size: 30px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .dica-clique {
+            text-align: center;
+            font-size: 11px;
+            color: var(--secundario);
+            margin-top: 4px;
+        }
     </style>
 </head>
 <body>
+
+<!-- ✅ Tela de Imagem Ampliada -->
+<div id="tela-ampliada" class="tela-imagem" onclick="fecharImagem()">
+    <span class="fechar">×</span>
+    <img id="img-ampliada" src="" alt="">
+</div>
 
 <div id="tela-catalogo" class="tela ativa">
     <div class="cabecalho">📦 Catálogo de Materiais</div>
@@ -56,7 +145,7 @@
         <input type="search" class="busca" id="busca" placeholder="Buscar por código ou nome...">
         
         <div class="filtros" id="filtros-familias">
-            <button class="filtro ativo" data-familia="todas">Todos</button>
+            <button class="filtro ativo" data-familia="todas">Todas as Famílias</button>
         </div>
         
         <div class="grade" id="grade-itens"></div>
@@ -66,25 +155,17 @@
 <div id="tela-detalhes" class="tela">
     <div class="cabecalho">
         <button class="btn-voltar" onclick="abrirCatalogo()">← Voltar</button>
-        Detalhes
+        Detalhes do Material
     </div>
     <div class="container" id="conteudo-detalhes"></div>
 </div>
 
 <script>
+// ✅ Sua lista de materiais — adicione mais aqui
 const materiais = [
-    { codigo: '100027', descricao: 'GERADOR PORTÁTIL', unidade: 'EA', familia: 'Geradores', status: 'NOVO' },
-    { codigo: '100028', descricao: 'REGULADOR DE TENSÃO', unidade: 'UN', familia: 'Reguladores', status: 'RECUPERADO' },
-    { codigo: '100029', descricao: 'TRANSFORMADOR DE DISTRIBUIÇÃO PEDESTAL', unidade: 'PC', familia: 'Transformadores', status: 'À RECUPERAR' },
-    { codigo: '100030', descricao: 'TRANSFORMADOR MONOFÁSICO', unidade: 'UN', familia: 'Transformadores', status: 'NOVO' },
-    { codigo: '100031', descricao: 'TRANSFORMADOR TRIFÁSICO', unidade: 'UN', familia: 'Transformadores', status: 'NOVO' },
-    { codigo: '100032', descricao: 'TRANSFORMADOR BIFÁSICO', unidade: 'PZ', familia: 'Transformadores', status: 'RECUPERADO' },
-    { codigo: '100033', descricao: 'CHAVE 24kV', unidade: 'PC', familia: 'Chaves e Disjuntores', status: 'NOVO' },
-    { codigo: '100034', descricao: 'MICRO SWITCH', unidade: 'UN', familia: 'Componentes Diversos', status: 'NOVO' },
-    { codigo: '100035', descricao: 'DISJUNTOR TERMOMAGNÉTICO TRIPOLAR', unidade: 'EA', familia: 'Chaves e Disjuntores', status: 'À RECUPERAR' },
-    { codigo: '100036', descricao: 'RELIGADOR AUTOMÁTICO A VÁCUO', unidade: 'EA', familia: 'Religadores', status: 'NOVO' },
-    { codigo: '100037', descricao: 'TRANSFORMADOR DE CORRENTE', unidade: 'PC', familia: 'Transformadores', status: 'SUCATA' },
-    { codigo: '100038', descricao: 'PAINEL DE MEDIÇÃO', unidade: 'UN', familia: 'Componentes Diversos', status: 'RECUPERADO' }
+    { codigo: '760489', descricao: 'ALICATE CORTE FRONTAL DE 6 POL. ISOLADO', unidade: 'EA', familia: 'FERRAMENTAS', status: 'NOVO' },
+    // Adicione mais itens aqui no mesmo formato
+    // { codigo: 'CODIGO', descricao: 'NOME', unidade: 'EA', familia: 'CATEGORIA', status: 'NOVO' },
 ];
 
 let familiaAtiva = 'todas';
@@ -92,7 +173,7 @@ let familiaAtiva = 'todas';
 function carregarFamilias() {
     const container = document.getElementById('filtros-familias');
     const existentes = new Set(materiais.map(m => m.familia));
-    container.innerHTML = '<button class="filtro ativo" data-familia="todas">Todos</button>';
+    container.innerHTML = '<button class="filtro ativo" data-familia="todas">Todas as Famílias</button>';
     existentes.forEach(fam => {
         const btn = document.createElement('button');
         btn.className = 'filtro';
@@ -108,15 +189,6 @@ function carregarFamilias() {
             renderizarGrade();
         });
     });
-}
-
-function getCaminhoFoto(codigo) {
-    const extensoes = ['jpg', 'jpeg', 'png', 'webp'];
-    for (const ext of extensoes) {
-        const img = new Image();
-        img.src = `fotos/${codigo}.${ext}`;
-    }
-    return `fotos/${codigo}.jpg`;
 }
 
 function renderizarGrade() {
@@ -135,7 +207,7 @@ function renderizarGrade() {
 
     grade.innerHTML = filtrados.map(m => `
         <div class="cartao" onclick="abrirDetalhe('${m.codigo}')">
-            <div class="cartao-foto">
+            <div class="cartao-foto" onclick="event.stopPropagation(); ampliarFoto('fotos/${m.codigo}.jpg')">
                 <img src="fotos/${m.codigo}.jpg" alt="${m.descricao}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
                 <span class="sem-foto" style="display:none;">🖼️</span>
             </div>
@@ -143,6 +215,7 @@ function renderizarGrade() {
                 <div class="cartao-codigo">#${m.codigo}</div>
                 <div class="cartao-nome">${m.descricao}</div>
                 <span class="cartao-familia">${m.familia}</span>
+                <div class="cartao-unidade">Unidade: ${m.unidade}</div>
             </div>
         </div>
     `).join('');
@@ -153,14 +226,16 @@ function abrirDetalhe(codigo) {
     if (!item) return;
     const conteudo = document.getElementById('conteudo-detalhes');
     conteudo.innerHTML = `
-        <div class="detalhes-foto">
+        <div class="detalhes-foto" onclick="ampliarFoto('fotos/${item.codigo}.jpg')">
             <img src="fotos/${item.codigo}.jpg" alt="${item.descricao}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
             <span style="font-size:60px; color:#C9CDD4; display:none;">🖼️</span>
         </div>
+        <p class="dica-clique">👆 Toque na imagem para ampliar</p>
+        
         <div class="detalhes-bloco"><h3>Descrição</h3><p style="font-size:18px; font-weight:bold;">${item.descricao}</p></div>
         <div class="detalhes-bloco"><h3>Código</h3><p style="font-family:monospace; font-size:20px;">${item.codigo}</p></div>
-        <div class="detalhes-bloco"><h3>Família</h3><p>${item.familia}</p></div>
-        <div class="detalhes-bloco"><h3>Unidade</h3><p>${item.unidade}</p></div>
+        <div class="detalhes-bloco"><h3>Família / Categoria</h3><p>${item.familia}</p></div>
+        <div class="detalhes-bloco"><h3>Unidade de Medida</h3><p>${item.unidade}</p></div>
         <div class="detalhes-bloco"><h3>Status</h3><span class="etiqueta ${item.status.replace(/ /g, '-')}">${item.status}</span></div>
     `;
     document.querySelectorAll('.tela').forEach(t => t.classList.remove('ativa'));
@@ -170,6 +245,16 @@ function abrirDetalhe(codigo) {
 function abrirCatalogo() {
     document.querySelectorAll('.tela').forEach(t => t.classList.remove('ativa'));
     document.getElementById('tela-catalogo').classList.add('ativa');
+}
+
+// ✅ Função para ampliar imagem
+function ampliarFoto(caminho) {
+    document.getElementById('img-ampliada').src = caminho;
+    document.getElementById('tela-ampliada').classList.add('ativa');
+}
+
+function fecharImagem() {
+    document.getElementById('tela-ampliada').classList.remove('ativa');
 }
 
 document.getElementById('busca').addEventListener('input', renderizarGrade);
