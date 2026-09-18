@@ -42,6 +42,130 @@
 </div>
 
 <div id="loading" class="loading">Carregando catálogo...</div>
+<div id="results" class="grid" style="display: none;"></div>
+<div id="noResults" class="no-results" style="display: none;">Nenhum material encontrado.</div>
+
+<script>
+let allItems = [];
+
+// Carrega o CSV
+async function loadCSV() {
+  try {
+    // O nome do arquivo CSV deve ser exatamente 'dados.csv'
+    const res = await fetch('dados.csv'); 
+    const text = await res.text();
+    parseCSV(text);
+  } catch (err) {
+    console.error("Erro ao carregar dados.csv:", err);
+    document.getElementById('loading').innerHTML = 'Erro ao carregar dados. Verifique se o arquivo "dados.csv" está na mesma pasta e se o conteúdo está correto.';
+  }
+}
+
+function parseCSV(text) {
+  const lines = text.trim().split('\n');
+  const sep = ';'; // Separador do seu CSV
+  const headers = lines[0].split(sep).map(h => h.trim());
+  
+  allItems = lines.slice(1).map(line => {
+    const vals = line.split(sep);
+    return {
+      codigo: vals[0]?.trim() || '',
+      descricao: vals[1]?.trim() || '',
+      unidade: vals[2]?.trim() || '',
+      familia: vals[3]?.trim() || '',
+      foto: vals[4]?.trim() || '' // Campo da foto
+    };
+  }).filter(item => item.codigo); // Filtra linhas que não têm código
+
+  populateFamilies();
+  renderResults();
+  document.getElementById('loading').style.display = 'none';
+  document.getElementById('results').style.display = '';
+}
+
+function populateFamilies() {
+  const families = [...new Set(allItems.map(i => i.familia).filter(f => f))].sort();
+  const select = document.getElementById('familyFilter');
+  families.forEach(fam => {
+    const opt = document.createElement('option');
+    opt.value = fam;
+    opt.textContent = fam;
+    select.appendChild(opt);
+  });
+}
+
+function renderResults() {
+  const search = document.getElementById('searchInput').value.toLowerCase();
+  const family = document.getElementById('familyFilter').value;
+
+  const filtered = allItems.filter(item => {
+    const matchSearch = !search || 
+      item.codigo.toLowerCase().includes(search) ||
+      item.descricao.toLowerCase().includes(search) ||
+      item.familia.toLowerCase().includes(search);
+    const matchFamily = !family || item.familia === family;
+    return matchSearch && matchFamily;
+  });
+
+  const container = document.getElementById('results');
+  const noResults = document.getElementById('noResults');
+  
+  if (filtered.length === 0) {
+    container.style.display = 'none';
+    noResults.style.display = 'block';
+    return;
+  }
+
+  noResults.style.display = 'none';
+  container.style.display = 'grid';
+  container.innerHTML = filtered.map(item => `
+    <div class="card">
+      <img src="${getImagePath(item.foto, item.codigo)}" alt="${item.codigo}" onerror="this.onerror=null; this.src='https://via.placeholder.com/400x200/eee/666?text=Img+${item.codigo}'">
+      <div class="card-body">
+        <div class="cod">${item.codigo}</div>
+        <p class="desc">${item.descricao}</p>
+        <span class="fam">${item.familia || 'Sem categoria'}</span>
+        <p class="med">Unidade: ${item.unidade || '—'}</p>
+      </div>
+    </div>
+  `).join('');
+}
+
+// Tenta encontrar a imagem. Primeiro usa o nome do campo 'foto', depois tenta com o código.
+function getImagePath(fotoField, codigo) {
+  if (fotoField && fotoField.trim() !== '') {
+    // Verifica se o nome do arquivo já contém uma extensão comum
+    const exts = ['.jpg', '.jpeg', '.png'];
+    const hasExt = exts.some(ext => fotoField.toLowerCase().endsWith(ext));
+    if (hasExt) {
+      return fotoField; // Usa o nome exato se tiver extensão
+    } else {
+      // Tenta adicionar extensões comuns se não tiver
+      for (const ext of exts) {
+        // Retorna a primeira tentativa válida (pode ser melhorado para verificar existência)
+        return fotoField + ext; 
+      }
+    }
+  }
+  // Fallback: tenta usar o código do item como nome do arquivo de imagem
+  return codigo + '.jpg'; // Assume .jpg como padrão se nada for encontrado
+}
+
+// Eventos para busca e filtro
+document.getElementById('searchInput').addEventListener('input', renderResults);
+document.getElementById('familyFilter').addEventListener('change', renderResults);
+
+// Configuração do Service Worker para PWA (opcional)
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch(err => {
+      console.error('Erro ao registrar Service Worker:', err);
+    });
+  });
+}
+
+// Carrega os dados do CSV ao iniciar
+loadCSV();
 </script>
 </body>
 </html>
